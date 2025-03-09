@@ -1,98 +1,161 @@
-#include <iostream> 
+ /******************************************************************************
+# Author:           Kate Stingle
+# Assignment:       Assignment 4 (CS 161B)
+# Date:             January 26th, 2025
+# Description:      - The purpose of this program is to read to, sort(ascending 
+                      class order), and output 2 parallel lists of courses and the 
+                      number of students enrolled in them. The program will then cancel 
+                      all classes with less than 20 students by removing the courses 
+                      from the list, and will print the updated list of courses and
+                      the number of students enrolled. The program uses input 
+                      validation, and always prints a welcome and exit message.
+
+# Input:            - int &num 
+                        -  collected and validated within readInt()
+                        - used for collecting the number of students in a course, 
+                        - will ultimately be stored in students[]. 
+                        - Cannot be >25 students
+                    - char courseNums[][MAXCHAR] 
+                        - for holding the names and course numbers, 
+                        - parallel with students[]. 
+                        - Inputted within readInput()
+
+# Output:           - char courseNums[MAX_COURSES][MAXCHAR] 
+                        - printed as is, then courses cancelled, then reprinted
+                        - 51 characters(columns) max per course.
+                        - 20 courses(rows) max.
+                    - int students[MAX_COURSES] 
+                        - list of number of students in each course
+                        - parallel with courseNums[]
+                        - printed as is, then courses cancelled, then reprinted
+
+# Sources:          Assignment 4 Specifications
+#******************************************************************************/
+
+#include <iostream>
 #include <iomanip>
+#include <string>
 using namespace std;
 
+// CONSTANTS - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+int const MAX_COURSES = 20;
+int const MAXCHAR = 51;
+int const MAX_STUDENTS = 25;
+string const WELCOME_MSG = "Welcome to my Course Rosters program!!";
+string const EXIT_MSG = "Thank you for checking out my Course Rosters program!";
+string const INPUT_MSG = "Enter course number and students enrolled when prompted. \nEnter Quit or quit for course number when you are done.";
+string const COURSE_PROMPT = "Enter course number : ";
+string const STUDENTS_PROMPT = "Number of students enrolled : ";
+string const STUDENTS_ERR_MSG = "Invalid number!! Please enter a number between 0 and 25";
+
+// FUNCTION HEADERS - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+// always prints welcome message
+void welcome(); 
+// prompt and read to the course and students arrays
+void readInput(char courseNums[][MAXCHAR], int students[], int& count); 
+// reads int for students in a course, called in readInput(), validates less than 25
+void readInt(string prompt, int& num); 
+// prints each course name and the number of students in each course, formatted neatly
+void printList(char courseNums[][MAXCHAR], int students[], int count);
+// This takes the 2 arrays and the count and removes all courses with less than 10 students in the course.
+void cancelCourses(char courseNums[MAX_COURSES][MAXCHAR], int students[MAX_COURSES], int& count); 
+// SHIFTING array to DELETE item, called each time an item is deleted in cancelCourses()
+void deleteCourse(char courseNums[MAX_COURSES][MAXCHAR], int students[MAX_COURSES], int& count, int delIndex);
+
+// MAIN - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 int main() {
-	//CONSTANTS
-	const double ADULTPRICE = 14.95;
-	const double SENIORPRICE = 7.40;
-	const double YOUTHPRICE = 5.55;
-	const double VEHICLEPRICE = 57.90;
-	const double BIKEPRICE = 4.00;
-	const double FREETICKETPRICE = 100.00;
-	const int MAXGROUP = 20;
-	const int NUMDECPOINTS = 2;
+    //  the arrays for course numbers and students.
+    char courseNums[MAX_COURSES][MAXCHAR];
+    int students[MAX_COURSES];
+    int count = 0; // preset before array is filled, edited within readInput()
+    welcome(); // always print welcome message
+    readInput(courseNums, students, count); // arrays are filled in order
+    cout << "List of courses and students: " << endl;
+    printList(courseNums, students, count); // prints course #’s and students neatly
+    cancelCourses(courseNums, students, count); // cancel the courses with less than10 students in them.
+    cout << "List after cancellations : " << endl;
+    printList(courseNums, students, count); // print filtered course #’s and students 
+    cout << EXIT_MSG; // always print exit message
+    return 0;
+}
 
-	//variables - input
-	char ridingVehicle;
-	int adults, seniors, youths, bikes;
-	//variables - calculations & output
-	double differenceForFreeTicket;
-	double totalCost;
-	
+// FUNCTION DEFINITIONS - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+void welcome() { // always prints welcome message
+    cout << WELCOME_MSG << endl;
+}
 
-	cout << fixed << showpoint << setprecision(NUMDECPOINTS);
+// prompt and read to the course and students arrays
+void readInput(char courseNums[][MAXCHAR], int students[], int& count) {
+    cout << INPUT_MSG << endl; // give user input instructions
+    char courseNum[MAXCHAR]; // the inputted course number at a given time
+    int numStudents; // the inputted num of students at a given time
+    cout << COURSE_PROMPT;
+    cin >> courseNum; // get course number
+    while (strcmp(courseNum, "quit") != 0 && strcmp(courseNum, "Quit") != 0 && count < MAX_COURSES) { // continue prompting for courses until quit or max courses reached
+        readInt(STUDENTS_PROMPT, numStudents); // get numStudents(validated in readInt())
+        if (count == 0) { // if no items in list, dont need to sort
+            strcpy_s(courseNums[count], courseNum);
+            students[count] = numStudents;
+        }
+        else { // sort list by comparing 
+            int i = 0;
+            while (strcmp(courseNums[i], courseNum) < 0 && i < count) {
+                i++; // go through courseNums[] until findcorrect alphabetical/numerical spot
+            }
+            //in a loop copy one course object to the next space
+            //This is the process of shifting to make room.
+            for (int j = count; j > i; j--) {
+                strcpy_s(courseNums[j], courseNums[j - 1]);
+                students[j] = students[j - 1];
+            }
+            //insert into the right position AFTER shifting all the courses
+            strcpy_s(courseNums[i], courseNum);
+            students[i] = numStudents;
+        }
+        //increment size - one more course inserted.
+        count++;
+        cout << COURSE_PROMPT;
+        cin >> courseNum; // get course number
+    }
+}
 
-	//Welcome message
-	cout << "Welcome to the Washington State Ferries Fare Calculator!" << endl << endl;
-	
-	//Fare Description output
-	cout << "Fare Description                                Ticket $" << endl;
-	cout << "--------------------------------------          --------" << endl;
-	cout << "Vehicle Under 14' (less than 163\") & Driver      $" << VEHICLEPRICE << endl;
-	cout << "Adult (age 19 - 64)                              $" << ADULTPRICE << endl;
-	cout << "Senior (age 65 & over) / Disability              $" << SENIORPRICE << endl;
-	cout << "Youth (age 6 - 18)                               $" << YOUTHPRICE << endl;
-	cout << "Bicycle Surcharge (included with Vehicle)        $" << BIKEPRICE << endl << endl;
+// reads int for students in a course, called in readInput(), validates less than 25 and >0
+void readInt(string prompt, int& num) {
+    cout << prompt;
+    cin >> num;
+    while (cin.fail() || num < 0 || num > MAX_STUDENTS) {
+        cin.clear();
+        cin.ignore(100000, '\n');
+        cout << STUDENTS_ERR_MSG << endl;
+        cout << prompt;
+        cin >> num;
+    }
+}
 
-	//prompt user for if riding a vehicle
-	cout << "Are you riding a vehicle on the Ferry (Y/N): ";
-	cin.get(ridingVehicle); //gets just the 1st character into ridingVehicles
-	cin.get(); //gets input from rest of line if inputted more than just 1 character. this is because we don't want this to be considered for the next input cin >>
+// prints each course name and the number of students in each course, formatted neatly
+void printList(char courseNums[][MAXCHAR], int students[], int count){
+    for (int i = 0; i < count; i++) {
+        cout << setw(10) << left << courseNums[i] << right << students[i] << endl;
+    }
+}
 
-	//test if char input valid, quit if invalid
-	if (ridingVehicle != 'y' && ridingVehicle != 'Y' && ridingVehicle != 'n' && ridingVehicle != 'N') {
-		cout << endl << "Error!!Invalid answer!!Please try again later!!!" << endl;
-	}
-	else {
-		//prompt for # adults
-		cout << "How many adults? ";
-		cin >> adults;
-		if (adults < 0) {
-			cout << endl << "Error!!Invalid answer!!Please try again later!!!" << endl;
-		}
-		else {
-			cout << "How many seniors? ";
-			cin >> seniors;
-			if (seniors < 0) {
-				cout << endl << "Error!!Invalid answer!!Please try again later!!!" << endl;
-			}
-			else {
-				cout << "How many youths? ";
-				cin >> youths;
-				if (youths < 0) {
-					cout << endl << "Error!!Invalid answer!!Please try again later!!!" << endl;
-				}
-				else if (youths + adults + seniors > MAXGROUP) {
-					cout << endl << "Uh oh!! Too many people in your group. Split into 2 groups and try again!" << endl;
-				}
-				else {
-					totalCost = YOUTHPRICE * youths + SENIORPRICE * seniors + ADULTPRICE * adults;
-					if (ridingVehicle == 'y' || ridingVehicle == 'Y') {
-						totalCost += VEHICLEPRICE;
-					}
-					else {
-						cout << "How many bikes? ";
-						cin >> bikes;
-						if (bikes < 0) {
-							cout << endl << "Error!!Invalid answer!!Please try again later!!!" << endl;
-						}
-						else {
-							totalCost += bikes * BIKEPRICE;
-						}
-					}
-					cout << "You" << "'" << "re total charge is $" << totalCost << endl << endl;
-					differenceForFreeTicket = FREETICKETPRICE - totalCost;
-					if (differenceForFreeTicket <= 0) {
-						cout << "You are eligible for a free adult ticket on your next trip!"<< endl;
-					}
-					else {
-						cout << "If you spend $" << differenceForFreeTicket << " or more, you are eligible for a free adult ticket for the next trip." << endl << endl;						}
-					
-				}
-			}
-		}
-	}
-	cout << "Thank you for using Washington State Ferries Fare Calculator!";
-	return 0;
+// This function takes the 2 arrays and the count and removes all courses with less than 10 students in the course by continuously shifting the array. 
+void cancelCourses(char courseNums[MAX_COURSES][MAXCHAR], int students[MAX_COURSES], int& count) {
+    for (int i = 0; i < count; i++) {
+        if(students[i] < 10) {
+            deleteCourse(courseNums, students, count, i); // count is now 1 less, the was next item is now current item
+            i--; // in order to not skip the current item, we need to minus 1 from i before the for loop adds 1, so that the i remains the same.
+        }
+     }
+}
+
+// SHIFTING array to DELETE item, called each time an item is deleted in cancelCourses()
+void deleteCourse(char courseNums[MAX_COURSES][MAXCHAR], int students[MAX_COURSES], int& count, int delIndex){
+    for (int i = delIndex; i < count - 1; i++) {
+        strcpy_s(courseNums[i], courseNums[i + 1]);
+        students[i] = students[i + 1];
+    } // now the lists are shifted left to delete delIndex course
+    courseNums[count - 1][0] = '\0'; // delete last course after shifting
+    students[count - 1] = 0; // delete last index of students[]
+    count--;
 }
