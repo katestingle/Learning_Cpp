@@ -1,0 +1,13 @@
+Organization;Location;Date;Price;Mission_Status
+SpaceX;LC-39A, Kennedy Space Center, Florida, USA;Fri Aug 07, 2020 05:12 UTC;50;Success
+ASC;Site 9401 (SLS-2), Jiuquan Satellite Launch Center, China;Thu Aug 06, 2020 04:01 UTC;29.75;Success
+oscosmos;Site 200/39, Baikonur Cosmodrome, Kazakhstan;Thu Jul 30, 2020 21:25 UTC;65;Success
+LA;SLC-41, Cape Canaveral AFS, Florida, USA;Thu Jul 30, 2020 11:50 UTC;145;Success
+ASC;LC-9, Taiyuan Satellite Launch Center, China;Sat Jul 25, 2020 03:13 UTC;64.68;Success
+oscosmos;Site 31/6, Baikonur Cosmodrome, Kazakhstan;Thu Jul 23, 2020 14:26 UTC;48.5;Success
+paceX;SLC-40, Cape Canaveral AFS, Florida, USA;Mon Jul 20, 2020 21:30 UTC;50;Success
+AXA;LA-Y1, Tanegashima Space Center, Japan;Sun Jul 19, 2020 21:58 UTC;90;Success
+orthrop;LP-0B, Wallops Flight Facility, Virginia, USA;Wed Jul 15, 2020 13:46 UTC;46;Success
+xPace;Site 95, Jiuquan Satellite Launch Center, China;Fri Jul 10, 2020 04:17 UTC;28.3;Failure
+ASC;LC-3, Xichang Satellite Launch Center, China;Thu Jul 09, 2020 12:11 UTC;29.15;Success
+ASC;Site 9401 (SLS-2), Jiuquan Satellite Launch Center, China;Sat Jul 04, 2020 23:44 UTC;29.75;Success
